@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="email"] {
+            padding: 8px;
+            width: 200px;
+        }
+        input[type="submit"], button {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>User Management System</h2>
+
+<!-- Form for adding new user -->
+<form id="addForm">
+    <input type="text" id="name" name="name" placeholder="Enter Name" required>
+    <input type="email" id="email" name="email" placeholder="Enter Email" required>
+    <input type="submit" value="Add User">
+</form>
+
+<!-- Table to display users -->
+<table id="userTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="userList">
+    </tbody>
+</table>
+
+<script>
+    // Function to fetch users from server
+    function fetchUsers() {
+        fetch('retrieve_users.php')
+            .then(response => response.json())
+            .then(data => {
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+                data.forEach(user => {
+                    userList.innerHTML += `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.created_at}</td>
+                            <td>
+                                <button onclick="editUser(${user.id})">Edit</button>
+                                <button onclick="deleteUser(${user.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    // Function to add new user
+    document.getElementById('addForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('create_user.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+            fetchUsers(); // Refresh user list after adding new user
+        });
+    });
+
+    // Function to delete user
+    function deleteUser(id) {
+        if (confirm('Are you sure you want to delete this user?')) {
+            fetch('delete_user.php', {
+                method: 'POST',
+                body: JSON.stringify({id: id})
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                fetchUsers(); // Refresh user list after deleting user
+            });
+        }
+    }
+
+    // Function to edit user
+    function editUser(id) {
+        const newName = prompt('Enter new name:');
+        const newEmail = prompt('Enter new email:');
+        fetch('update_user.php', {
+            method: 'POST',
+            body: JSON.stringify({id: id, name: newName, email: newEmail})
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+            fetchUsers(); // Refresh user list after updating user
+        });
+    }
+
+    // Initial fetch users when the page loads
+    fetchUsers();
+</script>
+
+</body>
+</html>

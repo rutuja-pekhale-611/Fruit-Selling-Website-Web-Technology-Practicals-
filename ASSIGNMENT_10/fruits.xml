@@ -1,0 +1,16 @@
+<ejb-jar>
+    <enterprise-beans>
+        <session>
+            <ejb-name>FruitManagerBean</ejb-name>
+            <remote>com.example.FruitManager</remote>
+        </session>
+        <session>
+            <ejb-name>OrderManagerBean</ejb-name>
+            <remote>com.example.OrderManager</remote>
+        </session>
+        <session>
+            <ejb-name>AuthenticationManagerBean</ejb-name>
+            <remote>com.example.AuthenticationManager</remote>
+        </session>
+    </enterprise-beans>
+</ejb-jar>
